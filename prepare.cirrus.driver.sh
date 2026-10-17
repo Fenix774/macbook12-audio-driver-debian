@@ -5,6 +5,7 @@ set -euo pipefail
 kernel_release="${1:-$(uname -r)}"
 kernel_version="${kernel_release%%-*}"
 kernel_version="${kernel_version%%_*}"
+kernel_version="${kernel_version%%+*}"
 
 if [[ ! $kernel_version =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?([.-]rc[0-9]+)?$ ]]; then
   echo "Unsupported kernel release: $kernel_release" >&2
@@ -85,10 +86,14 @@ if [ $is_debian_like -ge 1 ]; then
   # modified with extensive backports from later kernel versions
   # (and in any case there is no linux-source-... package for hwe kernels)
 
+  archive_version="$kernel_version"
   if [ -e /usr/src/linux-source-$kernel_version.tar.bz2 ]; then
     comp_type='bz2' # Ubuntu packages provide bz2 compression
   elif [ -e /usr/src/linux-source-$kernel_version.tar.xz ]; then
-    comp_type='xz'  # Debian packages provde xz compression
+    comp_type='xz'  # Debian packages provide xz compression
+  elif [ -e /usr/src/linux-source-${kernel_version%.*}.tar.xz ]; then
+    comp_type='xz'  # Debian packages using major.minor versioning (e.g. Debian 13)
+    archive_version="${kernel_version%.*}"
   else
     echo "Linux kernel source not found in /usr/src: /usr/src/linux-source-$kernel_version.tar.bz2"
     echo "assuming the linux kernel source package is not installed"
@@ -99,8 +104,8 @@ if [ $is_debian_like -ge 1 ]; then
     echo "NOTE - This does not work for HWE kernels"
     exit 1
   fi
-  archive="/usr/src/linux-source-${kernel_version}.tar.${comp_type}"
-  kernel_version="source-$kernel_version"
+  archive="/usr/src/linux-source-${archive_version}.tar.${comp_type}"
+  kernel_version="source-$archive_version"
 else
   checksums="$cache_dir/sha256sums-v${major_version}.asc"
   [[ -f $checksums ]] || refresh_checksums
