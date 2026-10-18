@@ -2,10 +2,16 @@
 
 **Cause:** Installing `lutris` automatically pulled in `fluidsynth` as a recommended dependency. Its background service starts at boot and grabs exclusive raw ALSA access (`/dev/snd/pcmC0D0p`), locking out PipeWire.
 
-**Check:**
+**Check 1: Check if there's any sound (if you here no sound here, this fix will not help you)**
+```bash
+speaker-test -c 2 -t wav
+```
+
+**Check 2: Check which application is using the audio**
 ```bash
 sudo fuser -v /dev/snd/*
 ```
+
 **Fix:**
 ```bash
 systemctl --user mask --now fluidsynth.service
