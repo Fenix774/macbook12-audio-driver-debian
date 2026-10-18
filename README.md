@@ -1,3 +1,12 @@
+# Unrelated Note for myself: Audio Missing / Stuck on "Dummy Output" (Debian)
+
+**Cause:** Installing `lutris` automatically pulled in `fluidsynth` as a recommended dependency. Its background service starts at boot and grabs exclusive raw ALSA access (`/dev/snd/pcmC0D0p`), locking out PipeWire.
+
+**Check:**
+```bash
+sudo fuser -v /dev/snd/*
+```
+
 # CS4208 audio driver for the 12-inch MacBook
 
 Out-of-tree audio driver for the **Cirrus Logic CS4208** codec in the 12-inch
