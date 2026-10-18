@@ -6,6 +6,12 @@
 ```bash
 sudo fuser -v /dev/snd/*
 ```
+**Fix:**
+```bash
+systemctl --user mask --now fluidsynth.service
+systemctl --user restart pipewire wireplumber pipewire-pulse
+
+```
 
 # CS4208 audio driver for the 12-inch MacBook
 
